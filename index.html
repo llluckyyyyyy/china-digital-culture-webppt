@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中国数字文化产业空间集聚研究进展</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    /* === THEME TOKENS === */
+    :root {
+      --template-blue: #4472c4;
+      --deep-blue: #234b85;
+      --ink: #202630;
+      --muted: #626d7d;
+      --line: #d8e0ec;
+      --soft-blue: #edf3fc;
+      --risk: #b5473e;
+      --amber: #c48a24;
+      --slide-bg: #fff;
+      --stage-bg: #0e1725;
+      --font-sans: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      --font-serif: "Noto Serif SC", serif;
+      --ease-out-expo: cubic-bezier(.16, 1, .3, 1);
+      --duration-normal: .45s;
+    }
+
+    * { box-sizing: border-box; }
+
+    /* ===========================================
+       FIXED 16:9 STAGE: MANDATORY BASE STYLES
+       Include this ENTIRE file in every presentation.
+       Slides are authored at 1920×1080 and scaled as a whole.
+       =========================================== */
+
+    /* 1. Lock the browser viewport */
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--stage-bg, #000);
+    }
+
+    /* 2. Full-window deck viewport */
+    .deck-viewport {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background: var(--stage-bg, #000);
+    }
+
+    /* 3. Fixed 16:9 design canvas.
+       JavaScript sets transform: translate(...) scale(...). */
+    .deck-stage {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        transform-origin: 0 0;
+        background: var(--slide-bg, #fff);
+    }
+
+    /* 4. Slides stack inside the fixed stage.
+       Content must be laid out at 1920×1080, not reflowed per device. */
+    .slide {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        display: block;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        background: var(--slide-bg, #fff);
+    }
+
+    .slide.active,
+    .slide.visible {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 1;
+    }
+
+    /* 5. Keep media inside authored slide bounds */
+    img,
+    video,
+    canvas,
+    svg {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    /* 6. Presentation chrome stays outside the slide design system */
+    .deck-controls {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        z-index: 1000;
+    }
+
+    /* 7. Print one fixed-size slide per page */
+    @media print {
+        html,
+        body {
+            width: 1920px;
+            height: auto;
+            overflow: visible;
+            background: #fff;
+        }
+
+        .deck-viewport {
+            position: static;
+            overflow: visible;
+            background: #fff;
+        }
+
+        .deck-stage {
+            position: static;
+            width: auto;
+            height: auto;
+            transform: none !important;
+            background: none;
+        }
+
+        .slide {
+            position: relative;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            width: 1920px;
+            height: 1080px;
+            break-after: page;
+            page-break-after: always;
+        }
+
+        .slide:last-child {
+            break-after: auto;
+            page-break-after: auto;
+        }
+
+        .deck-controls {
+            display: none !important;
+        }
+    }
+
+    /* 8. Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.2s !important;
+        }
+    }
+
+    /* === BASE TYPOGRAPHY AND SLIDE TRANSITIONS === */
+    body { font-family: var(--font-sans); color: var(--ink); }
+    .slide { transition: opacity .2s ease; }
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-normal) var(--ease-out-expo);
+    }
+    .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+    .slide.visible .reveal:nth-child(2) { transition-delay: .06s; }
+    .slide.visible .reveal:nth-child(3) { transition-delay: .12s; }
+    .slide.visible .reveal:nth-child(4) { transition-delay: .18s; }
+    .slide.visible .reveal:nth-child(5) { transition-delay: .24s; }
+
+    /* === TEMPLATE CHROME === */
+    .content-slide {
+      background: #fff url("assets/template-content.png") center/1920px 1080px no-repeat;
+    }
+    .template-header {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 124px;
+      display: grid;
+      grid-template-columns: 752px 1fr;
+      z-index: 4;
+      background: var(--template-blue);
+      border-bottom: 1px solid #1b3159;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      padding-left: 150px;
+      color: #fff;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      white-space: nowrap;
+    }
+    .section-tabs { display: grid; grid-template-columns: repeat(4, 1fr); height: 124px; }
+    .section-tab {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 42px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .section-tab.active {
+      color: var(--template-blue);
+      background: #fff;
+      font-weight: 800;
+    }
+    .page-num {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 68px;
+      height: 80px;
+      background: var(--template-blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 500;
+      z-index: 4;
+    }
+    .slide-body {
+      position: absolute;
+      left: 92px;
+      right: 92px;
+      top: 154px;
+      bottom: 128px;
+      z-index: 2;
+      overflow: hidden;
+    }
+    .slide-heading {
+      margin: 0;
+      color: var(--deep-blue);
+      font-size: 48px;
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: .3px;
+    }
+    .slide-subtitle {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 23px;
+      line-height: 1.5;
+    }
+    .blue-rule { height: 3px; background: var(--template-blue); margin: 18px 0 24px; }
+    .source-note {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 30px;
+      font-size: 17px;
+      color: #6d7787;
+      line-height: 1.45;
+    }
+    .accent { color: var(--template-blue); }
+    .risk { color: var(--risk); }
+    .muted { color: var(--muted); }
+    .serif { font-family: var(--font-serif); }
+
+    /* === COVER AND CLOSING === */
+    .cover-slide { background: #fff url("assets/template-cover.png") center/cover no-repeat; }
+    .cover-band {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 305px;
+      height: 447px;
+      background: var(--template-blue);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      padding: 0 140px;
+    }
+    .cover-band h1 { margin: 0; font-size: 78px; line-height: 1.2; font-weight: 800; letter-spacing: 2px; }
+    .cover-band p { margin: 24px 0 0; font-size: 34px; letter-spacing: 4px; font-weight: 500; }
+    .end-slide { background: #fff url("assets/template-end.png") center/cover no-repeat; }
+
+    /* === COMMON ACADEMIC LAYOUTS === */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .two-col.wide-left { grid-template-columns: 1.45fr .55fr; }
+    .two-col.wide-right { grid-template-columns: .62fr 1.38fr; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+    .four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+    .academic-block {
+      border-top: 4px solid var(--template-blue);
+      padding: 22px 20px 18px;
+      background: linear-gradient(180deg, rgba(237,243,252,.88), rgba(255,255,255,.2));
+      min-height: 190px;
+    }
+    .academic-block h3 { margin: 0 0 14px; font-size: 28px; color: var(--deep-blue); }
+    .academic-block p, .academic-block li { font-size: 22px; line-height: 1.55; }
+    .clean-list { margin: 0; padding-left: 1.25em; }
+    .clean-list li { margin: 0 0 9px; }
+    .callout {
+      border-left: 7px solid var(--template-blue);
+      padding: 16px 22px;
+      background: var(--soft-blue);
+      font-size: 24px;
+      line-height: 1.55;
+    }
+    .takeaway {
+      margin-top: 24px;
+      padding: 16px 22px;
+      border-left: 8px solid var(--deep-blue);
+      color: var(--deep-blue);
+      background: #f5f8fd;
+      font-size: 25px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+    .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-top: 32px; }
+    .metric-item { border-top: 2px solid var(--line); padding-top: 15px; }
+    .metric-value { font-size: 52px; font-weight: 800; color: var(--template-blue); line-height: 1; }
+    .metric-label { margin-top: 10px; font-size: 20px; color: var(--muted); line-height: 1.4; }
+
+    /* === AGENDA === */
+    .agenda-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin-top: 54px; }
+    .agenda-item { border-top: 6px solid var(--template-blue); padding: 26px 18px 0; min-height: 430px; position: relative; }
+    .agenda-num { font-size: 88px; line-height: 1; color: rgba(68,114,196,.18); font-weight: 800; }
+    .agenda-title { font-size: 34px; color: var(--deep-blue); font-weight: 800; margin-top: -18px; }
+    .agenda-pages { font-size: 18px; color: var(--template-blue); font-weight: 700; margin: 10px 0 24px; }
+    .agenda-desc { font-size: 22px; color: var(--ink); line-height: 1.65; }
+
+    /* === RESEARCH QUESTIONS === */
+    .object-definition { padding-right: 36px; }
+    .object-definition .definition-label { font-size: 20px; color: var(--template-blue); font-weight: 700; letter-spacing: 2px; }
+    .object-definition h3 { font-family: var(--font-serif); font-size: 40px; line-height: 1.45; margin: 18px 0 25px; }
+    .question-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .question { min-height: 190px; padding: 24px; border: 1px solid var(--line); border-top: 5px solid var(--template-blue); }
+    .question .q { color: var(--template-blue); font-size: 20px; font-weight: 800; }
+    .question h3 { margin: 8px 0 9px; font-size: 28px; }
+    .question p { margin: 0; color: var(--muted); font-size: 20px; line-height: 1.5; }
+
+    /* === TABLES AND MATRICES === */
+    table { width: 100%; border-collapse: collapse; }
+    .matrix-table { margin-top: 24px; table-layout: fixed; }
+    .matrix-table th { background: var(--template-blue); color: #fff; font-size: 22px; padding: 15px 18px; text-align: left; }
+    .matrix-table td { border-bottom: 1px solid var(--line); padding: 15px 18px; font-size: 20px; line-height: 1.45; vertical-align: top; }
+    .matrix-table tr:nth-child(even) td { background: #f7f9fc; }
+    .risk-table td:first-child { width: 200px; color: var(--deep-blue); font-weight: 700; }
+    .risk-table td:nth-child(2) { width: 500px; }
+    .risk-table td:last-child { color: #495466; }
+
+    /* === PROCESS DIAGRAMS === */
+    .process-line { display: grid; grid-template-columns: repeat(5, 1fr); gap: 34px; margin-top: 72px; }
+    .process-step { position: relative; padding: 26px 20px 20px; border-top: 5px solid var(--template-blue); min-height: 310px; background: #f7f9fd; }
+    .process-step:not(:last-child)::after { content: ""; position: absolute; top: 58px; right: -34px; width: 34px; height: 2px; background: var(--template-blue); }
+    .step-num { font-size: 18px; color: var(--template-blue); font-weight: 800; letter-spacing: 2px; }
+    .process-step h3 { font-size: 28px; margin: 15px 0 14px; color: var(--deep-blue); }
+    .process-step p { font-size: 20px; line-height: 1.55; color: var(--muted); margin: 0; }
+    .pipeline { display: grid; grid-template-columns: 1fr 55px 1fr 55px 1fr 55px 1fr; align-items: stretch; margin-top: 58px; }
+    .pipeline-box { padding: 26px; border: 2px solid var(--line); min-height: 220px; }
+    .pipeline-box strong { display: block; font-size: 34px; color: var(--template-blue); margin-bottom: 14px; }
+    .pipeline-box span { font-size: 20px; line-height: 1.5; color: var(--muted); }
+    .pipeline-arrow { display: flex; align-items: center; justify-content: center; color: var(--template-blue); font-size: 40px; }
+
+    /* === CHART AND MAP PAGES === */
+    .figure-frame { background: #fff; border: 1px solid var(--line); padding: 8px; overflow: hidden; }
+    .figure-frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .chart-layout { display: grid; grid-template-columns: 1.47fr .53fr; gap: 32px; height: 680px; margin-top: 22px; }
+    .chart-layout .figure-frame { height: 650px; }
+    .figure-notes { padding: 12px 0 0 8px; }
+    .figure-notes h3 { font-size: 27px; color: var(--deep-blue); margin: 0 0 17px; }
+    .figure-notes p { font-size: 21px; line-height: 1.56; margin: 0 0 17px; }
+    .map-layout { display: grid; grid-template-columns: 1.52fr .48fr; gap: 30px; height: 675px; margin-top: 20px; }
+    .map-layout .figure-frame { height: 660px; }
+    .map-notes { padding: 10px 0; }
+    .evidence-item { border-top: 2px solid var(--line); padding: 14px 0 16px; }
+    .evidence-item:first-child { border-top: 5px solid var(--template-blue); }
+    .evidence-item strong { display: block; font-size: 24px; color: var(--deep-blue); margin-bottom: 6px; }
+    .evidence-item span { font-size: 19px; color: var(--muted); line-height: 1.5; }
+
+    /* === NATIVE DATA BARS === */
+    .bar-list { margin-top: 24px; }
+    .bar-row { display: grid; grid-template-columns: 285px 1fr 115px; gap: 16px; align-items: center; margin: 16px 0; }
+    .bar-label { font-size: 21px; }
+    .bar-track { height: 24px; background: #e8edf5; }
+    .bar-fill { height: 100%; background: var(--template-blue); }
+    .bar-value { font-size: 21px; font-weight: 700; color: var(--deep-blue); }
+    .scale-list { margin-top: 25px; }
+    .scale-row { display: grid; grid-template-columns: 110px 1fr 105px; align-items: center; gap: 14px; margin: 19px 0; }
+    .scale-label { font-size: 21px; }
+    .scale-track { height: 18px; background: #e8edf5; }
+    .scale-fill { height: 100%; background: var(--deep-blue); }
+    .scale-value { font-size: 20px; text-align: right; }
+
+    /* === PAPER AND EXPERIMENT SLIDES === */
+    .paper-layout { display: grid; grid-template-columns: 440px 1fr; gap: 42px; height: 650px; margin-top: 20px; }
+    .paper-preview { border: 1px solid var(--line); padding: 8px; background: #f6f7f9; box-shadow: 0 10px 28px rgba(24,51,88,.12); }
+    .paper-preview img { width: 100%; height: 100%; object-fit: contain; }
+    .paper-results { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+    .paper-results .academic-block { min-height: 200px; }
+    .scale-band { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 26px; }
+    .scale-band div { padding: 14px; text-align: center; background: var(--template-blue); color: #fff; font-size: 22px; border-right: 1px solid rgba(255,255,255,.5); }
+    .model-stack { display: grid; grid-template-columns: 1.1fr .9fr; gap: 42px; margin-top: 30px; }
+    .model-row { display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid var(--line); padding: 16px 0; }
+    .model-row strong { font-size: 22px; color: var(--deep-blue); }
+    .model-row span { font-size: 20px; color: var(--muted); line-height: 1.5; }
+    .roadmap { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 28px; border-top: 3px solid var(--template-blue); }
+    .roadmap-step { padding: 18px 18px 0; border-right: 1px solid var(--line); min-height: 150px; }
+    .roadmap-step:last-child { border-right: none; }
+    .roadmap-step b { color: var(--template-blue); font-size: 20px; }
+    .roadmap-step p { margin: 8px 0 0; font-size: 19px; line-height: 1.45; }
+
+    /* === OUTSIDE-STAGE CONTROLS === */
+    .deck-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 24px;
+      background: rgba(13,25,43,.84);
+      color: #fff;
+      opacity: .15;
+      transition: opacity .2s ease;
+      backdrop-filter: blur(8px);
+    }
+    .deck-controls:hover { opacity: 1; }
+    .deck-controls button { border: 0; background: transparent; color: #fff; font-size: 19px; padding: 4px 9px; cursor: pointer; }
+    .deck-count { min-width: 70px; text-align: center; font-size: 14px; }
+    .edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+    .edit-toggle {
+      position: fixed; top: 14px; left: 14px; width: 44px; height: 44px; border: 0; border-radius: 50%;
+      background: var(--template-blue); color: #fff; font-size: 19px; opacity: 0; pointer-events: none;
+      transition: opacity .3s ease; z-index: 10001; cursor: pointer;
+    }
+    .edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+    .edit-toolbar {
+      position: fixed; top: 14px; left: 70px; z-index: 10001; display: none; gap: 8px;
+      background: rgba(13,25,43,.9); padding: 7px; border-radius: 9px;
+    }
+    .edit-toolbar.active { display: flex; }
+    .edit-toolbar button { border: 0; border-radius: 6px; background: #fff; color: var(--deep-blue); padding: 8px 12px; cursor: pointer; font-family: var(--font-sans); }
+    .editing [contenteditable="true"] { outline: 2px dashed rgba(68,114,196,.45); outline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <div class="deck-viewport">
+    <main class="deck-stage" id="deckStage" aria-label="中国数字文化产业研究进展演示文稿">
+
+      <!-- === P01 COVER === -->
+      <section class="slide cover-slide active" aria-label="封面">
+        <div class="cover-band">
+          <h1 class="reveal">中国数字文化产业空间集聚研究进展</h1>
+          <p class="reveal">企业数据构建、空间格局识别与改进实验方案</p>
+        </div>
+      </section>
+
+      <!-- === P02 AGENDA === -->
+      <section class="slide content-slide" data-section="1" data-page="2" aria-label="汇报框架">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">汇报框架</h2>
+          <p class="slide-subtitle reveal">围绕研究问题组织证据，先审查数据可信度，再讨论空间格局和下一步实验</p>
+          <div class="agenda-grid">
+            <div class="agenda-item reveal"><div class="agenda-num">01</div><div class="agenda-title">研究背景</div><div class="agenda-pages">P03—P05</div><div class="agenda-desc">界定研究对象<br>梳理文献进展<br>建立分析框架</div></div>
+            <div class="agenda-item reveal"><div class="agenda-num">02</div><div class="agenda-title">数据与方法</div><div class="agenda-pages">P06—P09</div><div class="agenda-desc">说明筛选逻辑<br>审查数据质量<br>识别样本结构</div></div>
+            <div class="agenda-item reveal"><div class="agenda-num">03</div><div class="agenda-title">阶段结果</div><div class="agenda-pages">P10—P14</div><div class="agenda-desc">点位与县域分布<br>核密度格局<br>城市集中度</div></div>
+            <div class="agenda-item reveal"><div class="agenda-num">04</div><div class="agenda-title">改进实验</div><div class="agenda-pages">P15—P18</div><div class="agenda-desc">迁移参考论文设计<br>补充多尺度动态<br>增强机制识别</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- === P03 RESEARCH QUESTIONS === -->
+      <section class="slide content-slide" data-section="1" data-page="3" aria-label="研究对象与核心问题">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">研究对象、边界与核心问题</h2>
+          <div class="blue-rule"></div>
+          <div class="two-col wide-right">
+            <div class="object-definition reveal">
+              <div class="definition-label">操作性定义</div>
+              <h3>国家产业分类、文化产业分类与数字经济分类的交叉筛选结果</h3>
+              <div class="callout">数字文化产业研究对象不同于全部文化企业，也不同于全部数字经济企业。企业是否具有“数字性”仍需结合行业编码与经营范围判断。</div>
+            </div>
+            <div class="question-grid">
+              <div class="question reveal"><span class="q">Q1 空间分布</span><h3>企业在哪里</h3><p>全国覆盖范围、区域差异和城市集中度如何？</p></div>
+              <div class="question reveal"><span class="q">Q2 集聚结构</span><h3>如何形成热点</h3><p>县域高值、连续密度热点和多中心结构是否一致？</p></div>
+              <div class="question reveal"><span class="q">Q3 动态演化</span><h3>格局怎样变化</h3><p>新设企业流量与在营企业存量如何演进？</p></div>
+              <div class="question reveal"><span class="q">Q4 影响机制</span><h3>哪些因素驱动</h3><p>经济、人才、创新、数字基础设施与政策如何作用？</p></div>
+            </div>
+          </div>
+          <div class="takeaway reveal">研究目标：在可信数据基础上识别数字文化企业的空间集聚、演化路径与作用机制。</div>
+        </div>
+      </section>
+
+      <!-- === P04 LITERATURE === -->
+      <section class="slide content-slide" data-section="1" data-page="4" aria-label="文献进展">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">文献进展：研究共识与待解问题</h2>
+          <p class="slide-subtitle reveal">项目文献库共梳理75篇文献，其中近年研究55篇、方法类文献20篇</p>
+          <table class="matrix-table reveal">
+            <thead><tr><th>研究主题</th><th>已有共识</th><th>常用方法</th><th>当前不足</th></tr></thead>
+            <tbody>
+              <tr><td>概念与边界</td><td>数字技术改变文化生产、传播和消费</td><td>政策文本、产业分类、关键词筛选</td><td>行业口径不统一，“数字性”识别不足</td></tr>
+              <tr><td>空间格局</td><td>东部和核心城市集中，区域差异明显</td><td>KDE、区位商、Moran’s I、热点分析</td><td>全国微观企业证据有限，尺度依赖突出</td></tr>
+              <tr><td>动态演化</td><td>集聚具有路径依赖，多中心联系增强</td><td>重心迁移、LISA路径、空间马尔可夫</td><td>历史存量重建困难，时间节点较少</td></tr>
+              <tr><td>影响机制</td><td>经济、人才、创新和产业结构较重要</td><td>空间计量、地理探测器、GWR/MGWR</td><td>虚拟空间数据缺失，因果识别偏弱</td></tr>
+            </tbody>
+          </table>
+          <div class="takeaway reveal">研究机会：以全国企业点数据补充微观证据，并把尺度稳健性、历史状态和因果验证纳入同一研究设计。</div>
+          <div class="source-note">资料：项目文件夹“数字文化产业空间分布文献综述”及相关文献库。</div>
+        </div>
+      </section>
+
+      <!-- === P05 FRAMEWORK === -->
+      <section class="slide content-slide" data-section="1" data-page="5" aria-label="理论与分析框架">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">理论与分析框架：集聚、演化与机制</h2>
+          <p class="slide-subtitle reveal">理论用于提出可检验问题，方法按证据强度逐步推进</p>
+          <div class="process-line">
+            <div class="process-step reveal"><div class="step-num">STAGE 01</div><h3>对象界定</h3><p>产业分类交叉筛选<br>经营范围辅助核验<br>建立可重复口径</p></div>
+            <div class="process-step reveal"><div class="step-num">STAGE 02</div><h3>空间描述</h3><p>点位分布<br>重心与标准差椭圆<br>县域数量与区位商</p></div>
+            <div class="process-step reveal"><div class="step-num">STAGE 03</div><h3>集聚识别</h3><p>核密度与热点分析<br>Global/Local Moran’s I<br>DBSCAN多中心识别</p></div>
+            <div class="process-step reveal"><div class="step-num">STAGE 04</div><h3>动态演化</h3><p>新设流量与在营存量<br>LISA时间路径<br>空间马尔可夫转移</p></div>
+            <div class="process-step reveal"><div class="step-num">STAGE 05</div><h3>机制检验</h3><p>计数型空间模型<br>MGWR/GTWR<br>政策效应与稳健性</p></div>
+          </div>
+          <div class="three-col" style="margin-top:28px">
+            <div class="callout reveal"><b>集聚理论</b><br>规模经济、知识溢出和共享劳动力市场解释城市集中。</div>
+            <div class="callout reveal"><b>演化视角</b><br>历史基础、相关多样化和路径依赖解释格局持续性。</div>
+            <div class="callout reveal"><b>数字特征</b><br>平台、网络基础设施与线上联系可能改变传统邻近机制。</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- === P06 DATA PIPELINE === -->
+      <section class="slide content-slide" data-section="2" data-page="6" aria-label="数据构建">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">数据构建：来源、筛选与当前样本</h2>
+          <p class="slide-subtitle reveal">筛选依据：GB/T 4754—2017、《文化及相关产业分类（2018）》与《数字经济及其核心产业统计分类（2021）》</p>
+          <div class="pipeline reveal">
+            <div class="pipeline-box"><strong>75,020</strong><span>企查查原始企业记录<br>包含工商、行业、地址与经营范围信息</span></div><div class="pipeline-arrow">›</div>
+            <div class="pipeline-box"><strong>四层筛选</strong><span>行业门类、大类、中类与小类组合<br>经营范围用于补充数字文化属性</span></div><div class="pipeline-arrow">›</div>
+            <div class="pipeline-box"><strong>38,396</strong><span>当前Excel实际记录数<br>统一社会信用代码无重复</span></div><div class="pipeline-arrow">›</div>
+            <div class="pipeline-box"><strong>空间化</strong><span>全部记录显示地理编码成功<br>保留WGS84与CGCS2000字段</span></div>
+          </div>
+          <div class="metric-row reveal">
+            <div class="metric-item"><div class="metric-value">37</div><div class="metric-label">企业属性与坐标字段</div></div>
+            <div class="metric-item"><div class="metric-value">100%</div><div class="metric-label">登记状态均为“存续”</div></div>
+            <div class="metric-item"><div class="metric-value">1979—2026</div><div class="metric-label">样本企业成立年份范围</div></div>
+            <div class="metric-item"><div class="metric-value">0</div><div class="metric-label">统一社会信用代码重复记录</div></div>
+          </div>
+          <div class="source-note">数据：数字文化产业企业汇总6（数字文化产业筛选版_CGCS2000）.xlsx。当前表截至2026年5月。</div>
+        </div>
+      </section>
+
+      <!-- === P07 DATA AUDIT === -->
+      <section class="slide content-slide" data-section="2" data-page="7" aria-label="数据质量审计">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">数据质量审计：进入模型前的五项校验</h2>
+          <table class="matrix-table risk-table reveal">
+            <thead><tr><th>问题</th><th>当前证据</th><th>可能影响与处理方式</th></tr></thead>
+            <tbody>
+              <tr><td>版本不一致</td><td>筛选报告写38,994家，当前Excel为38,396家，相差<span class="risk">598家</span></td><td>冻结数据版本，保存筛选规则、日期和逐步样本量</td></tr>
+              <tr><td>地图不一致</td><td>县域图最高值2,619，当前表最高区县计数为<span class="risk">2,760</span></td><td>使用同一数据版本重制专题图，并核对区县名称归并</td></tr>
+              <tr><td>时间口径</td><td>全部为当前存续企业，2026年只统计1—5月</td><td>区分新设流量与历史在营存量，补充注销和迁移信息</td></tr>
+              <tr><td>地址偏差</td><td>部分高新区、开发区登记数量异常突出</td><td>核验注册地址与经营地址，设置开发区敏感性样本</td></tr>
+              <tr><td>坐标与距离</td><td>CGCS2000字段表现为经纬度数值，并非米制坐标</td><td>KDE、距离与面积计算前转换为适合全国分析的米制投影</td></tr>
+            </tbody>
+          </table>
+          <div class="takeaway reveal">数据版本、空间位置与时间口径统一后，显著性检验和演化结论才具有可重复性。</div>
+        </div>
+      </section>
+
+      <!-- === P08 YEAR CHART === -->
+      <section class="slide content-slide" data-section="2" data-page="8" aria-label="成立年份分布">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">当前存续样本集中于2020年后成立企业</h2>
+          <div class="chart-layout">
+            <figure class="figure-frame reveal"><img src="assets/chart-year.png" alt="2013至2026年5月样本企业成立年份柱状图"></figure>
+            <aside class="figure-notes reveal">
+              <h3>样本结构</h3>
+              <div class="evidence-item"><strong>29,423家</strong><span>2020—2025年成立，占全部样本76.6%</span></div>
+              <div class="evidence-item"><strong>9,228家</strong><span>2025年成立，为完整年度中的最高值</span></div>
+              <div class="evidence-item"><strong>3,555家</strong><span>2026年仅统计1—5月，不能与完整年度直接比较</span></div>
+              <div class="callout" style="margin-top:14px">该图反映当前存续企业的年龄结构，不能直接替代历史年度新设企业总量。</div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- === P09 INDUSTRY AND SCALE === -->
+      <section class="slide content-slide" data-section="2" data-page="9" aria-label="行业构成与企业规模">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">行业构成与企业规模</h2>
+          <p class="slide-subtitle reveal">行业结构用于检验筛选结果，规模结构受缺失值影响，仅作描述</p>
+          <div class="two-col" style="margin-top:28px">
+            <div class="reveal">
+              <h3 style="font-size:29px;color:var(--deep-blue);margin:0">国标行业门类</h3>
+              <div class="bar-list">
+                <div class="bar-row"><span class="bar-label">文化、体育和娱乐业</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-value">38.70%</span></div>
+                <div class="bar-row"><span class="bar-label">信息传输、软件和信息技术</span><div class="bar-track"><div class="bar-fill" style="width:81.2%"></div></div><span class="bar-value">31.43%</span></div>
+                <div class="bar-row"><span class="bar-label">租赁和商务服务业</span><div class="bar-track"><div class="bar-fill" style="width:38.6%"></div></div><span class="bar-value">14.92%</span></div>
+                <div class="bar-row"><span class="bar-label">批发和零售业</span><div class="bar-track"><div class="bar-fill" style="width:20.5%"></div></div><span class="bar-value">7.92%</span></div>
+                <div class="bar-row"><span class="bar-label">科学研究和技术服务业</span><div class="bar-track"><div class="bar-fill" style="width:12.9%"></div></div><span class="bar-value">5.01%</span></div>
+              </div>
+              <div class="takeaway">文化内容与信息技术形成双核心，两类合计70.13%。</div>
+            </div>
+            <div class="reveal">
+              <h3 style="font-size:29px;color:var(--deep-blue);margin:0">企业规模字段</h3>
+              <div class="scale-list">
+                <div class="scale-row"><span class="scale-label">微型</span><div class="scale-track"><div class="scale-fill" style="width:59.2%"></div></div><span class="scale-value">59.20%</span></div>
+                <div class="scale-row"><span class="scale-label">缺失</span><div class="scale-track"><div class="scale-fill" style="width:22.64%;background:var(--risk)"></div></div><span class="scale-value risk">22.64%</span></div>
+                <div class="scale-row"><span class="scale-label">小型</span><div class="scale-track"><div class="scale-fill" style="width:16.95%"></div></div><span class="scale-value">16.95%</span></div>
+                <div class="scale-row"><span class="scale-label">中型</span><div class="scale-track"><div class="scale-fill" style="width:1.16%"></div></div><span class="scale-value">1.16%</span></div>
+                <div class="scale-row"><span class="scale-label">大型</span><div class="scale-track"><div class="scale-fill" style="width:.05%"></div></div><span class="scale-value">0.05%</span></div>
+              </div>
+              <div class="callout" style="margin-top:38px">规模字段缺失超过五分之一。机制模型若使用企业规模，应先补齐或设置缺失组。</div>
+            </div>
+          </div>
+          <div class="source-note">数据：当前38,396家存续企业样本。行业比例按国标行业门类汇总。</div>
+        </div>
+      </section>
+
+      <!-- === P10 POINT MAP === -->
+      <section class="slide content-slide" data-section="3" data-page="10" aria-label="企业点位分布">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">企业点位总体分布：东中部密集，西部稀疏</h2>
+          <div class="map-layout">
+            <figure class="figure-frame reveal"><img src="assets/map-points.jpg" alt="中国数字文化企业点位分布图"></figure>
+            <aside class="map-notes reveal">
+              <div class="evidence-item"><strong>覆盖范围</strong><span>全国多数省份均有企业点位，东部沿海和长江中游覆盖更连续。</span></div>
+              <div class="evidence-item"><strong>城市集聚</strong><span>省会、区域中心和沿海城市周边形成密集点团。</span></div>
+              <div class="evidence-item"><strong>西部特征</strong><span>整体点位稀疏，部分区域中心形成孤立集聚。</span></div>
+              <div class="evidence-item"><strong>解释边界</strong><span>点位重叠只能判断覆盖和方向，不能精确比较城市数量。</span></div>
+            </aside>
+          </div>
+          <div class="source-note">图：项目文件夹“图表结果/中国数字文化企业分布图.jpg”。</div>
+        </div>
+      </section>
+
+      <!-- === P11 COUNTY MAP === -->
+      <section class="slide content-slide" data-section="3" data-page="11" aria-label="县域数量分异">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">县域数量分异：头部区县与开发区集中</h2>
+          <div class="map-layout">
+            <figure class="figure-frame reveal"><img src="assets/map-county.jpg" alt="中国县域数字文化企业数量分级图"></figure>
+            <aside class="map-notes reveal">
+              <div class="evidence-item"><strong>长尾分布</strong><span>多数县域为0或1—10家，高值县域数量有限。</span></div>
+              <div class="evidence-item"><strong>高值位置</strong><span>省会核心区、都市圈节点及部分高新区进入高值等级。</span></div>
+              <div class="evidence-item"><strong>登记效应</strong><span>郑州高新区、江夏区、合肥高新区等排名突出，可能同时包含制度性登记集中。</span></div>
+              <div class="evidence-item"><strong>版本校验</strong><span>图例最高值2,619，当前Excel最高区县计数2,760，需统一版本后重制。</span></div>
+            </aside>
+          </div>
+          <div class="source-note">图：项目文件夹“图表结果/中国县域数字文化企业数量图.jpg”。</div>
+        </div>
+      </section>
+
+      <!-- === P12 KDE MAP === -->
+      <section class="slide content-slide" data-section="3" data-page="12" aria-label="核密度格局">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">核密度格局：多中心热点与区域核心并存</h2>
+          <div class="map-layout">
+            <figure class="figure-frame reveal"><img src="assets/map-kde.jpg" alt="中国数字文化企业核密度分析图"></figure>
+            <aside class="map-notes reveal">
+              <div class="evidence-item"><strong>热点形态</strong><span>东部、中部和南部出现多个高密核心及连续热点带。</span></div>
+              <div class="evidence-item"><strong>多中心结构</strong><span>热点并非只围绕单一超大城市，区域中心共同构成集聚网络。</span></div>
+              <div class="evidence-item"><strong>西部节点</strong><span>西部总体密度较低，局部省会形成孤立热点。</span></div>
+              <div class="evidence-item"><strong>参数敏感</strong><span>热点边界受带宽、投影坐标和边界处理影响，需开展敏感性检验。</span></div>
+            </aside>
+          </div>
+          <div class="source-note">图：项目文件夹“图表结果/中国数字文化企业核密度分析图.jpg”。</div>
+        </div>
+      </section>
+
+      <!-- === P13 CITY CONCENTRATION === -->
+      <section class="slide content-slide" data-section="3" data-page="13" aria-label="城市集中度">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">前10城市集聚47.0%的样本企业</h2>
+          <div class="chart-layout">
+            <figure class="figure-frame reveal"><img src="assets/chart-city.png" alt="数字文化产业样本企业前十城市横向条形图"></figure>
+            <aside class="figure-notes reveal">
+              <h3>集中度</h3>
+              <div class="evidence-item"><strong>前3城市 21.7%</strong><span>合肥、郑州、武汉合计8,341家</span></div>
+              <div class="evidence-item"><strong>前5城市 31.3%</strong><span>长春、深圳进入前五</span></div>
+              <div class="evidence-item"><strong>前10城市 47.0%</strong><span>接近半数样本登记于十座城市</span></div>
+              <div class="callout" style="margin-top:15px">排序反映当前样本登记分布，不等同于城市数字文化产业综合竞争力。</div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- === P14 SYNTHESIS === -->
+      <section class="slide content-slide" data-section="3" data-page="14" aria-label="阶段性发现">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">阶段性发现：文献共识与样本异常并存</h2>
+          <p class="slide-subtitle reveal">当前结果适合作为研究假设的证据，尚不足以支持城市竞争力或因果结论</p>
+          <div class="three-col" style="margin-top:42px">
+            <div class="academic-block reveal" style="min-height:480px"><h3>与文献一致</h3><ul class="clean-list"><li>全国空间分布明显不均衡</li><li>东部及中部城市群点位更密集</li><li>省会和区域中心形成热点</li><li>连续热点呈多中心结构</li></ul><div class="metric-value" style="margin-top:40px">47.0%</div><div class="metric-label">前10城市样本占比</div></div>
+            <div class="academic-block reveal" style="min-height:480px;border-top-color:var(--risk)"><h3 class="risk">值得复核的偏离</h3><ul class="clean-list"><li>合肥、郑州、武汉、长春排名靠前</li><li>北京、上海的样本量低于部分省会</li><li>部分高新区在县域榜单中异常突出</li><li>当前格局与传统“北上广深”叙事不同</li></ul></div>
+            <div class="academic-block reveal" style="min-height:480px;border-top-color:var(--amber)"><h3 style="color:#8a5b0c">待检验解释</h3><ul class="clean-list"><li>数字文化与广义文化企业对象不同</li><li>分层筛选对信息技术行业覆盖较宽</li><li>注册地址及园区政策产生登记集聚</li><li>数据版本和存续样本造成结构偏差</li></ul></div>
+          </div>
+          <div class="takeaway reveal">下一步应先用官方数据和抽样核验确认空间格局，再讨论驱动机制。</div>
+        </div>
+      </section>
+
+      <!-- === P15 REFERENCE PAPER === -->
+      <section class="slide content-slide" data-section="4" data-page="15" aria-label="参考论文">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">参考论文：可迁移的时空分析设计</h2>
+          <div class="paper-layout">
+            <figure class="paper-preview reveal"><img src="assets/paper-page1.png" alt="刘培学等中国文化企业分布的时空特征及影响因素论文首页"></figure>
+            <div class="reveal">
+              <div class="callout"><b>研究设计</b>：2006—2021年文化企业数据，选取2006、2013、2021三个节点，采用KNN（k=4）、LISA时间路径、时空跃迁和OLS/GWR。</div>
+              <div class="paper-results">
+                <div class="academic-block"><h3>主要空间发现</h3><p>整体呈东南密、西北疏。高—高集聚主要位于京津冀、长三角和珠三角，部分省会表现为高—低类型。</p></div>
+                <div class="academic-block"><h3>动态与驱动</h3><p>空间稳定性St=0.895，路径依赖明显。经济、产业结构、高校、文旅资源和创新呈空间异质效应。</p></div>
+                <div class="academic-block"><h3>可继承内容</h3><p>企业微观数据验证、局部空间动态、权重矩阵设定和局部系数解释框架。</p></div>
+                <div class="academic-block" style="border-top-color:var(--risk)"><h3 class="risk">需要推进</h3><p>研究对象转向数字文化企业，并改进多尺度、计数型因变量、时间连续性和内生性处理。</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="source-note">文献：刘培学等. 中国文化企业分布的时空特征及影响因素[J]. 经济地理, 2025, 45(4): 77—85.</div>
+        </div>
+      </section>
+
+      <!-- === P16 EXPERIMENT I === -->
+      <section class="slide content-slide" data-section="4" data-page="16" aria-label="多尺度时空实验">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">改进实验Ⅰ：多尺度时空格局与集聚演化</h2>
+          <div class="scale-band reveal"><div>1 km / 5 km 网格</div><div>县域单元</div><div>城市单元</div></div>
+          <div class="process-line" style="margin-top:30px">
+            <div class="process-step reveal"><div class="step-num">01 时间重建</div><h3>流量与存量</h3><p>逐年新设企业作为流量<br>补充注销、迁移与状态记录后重建在营存量</p></div>
+            <div class="process-step reveal"><div class="step-num">02 坐标统一</div><h3>米制投影</h3><p>保留原始经纬度<br>全国距离和面积分析采用适配CGCS2000的米制投影</p></div>
+            <div class="process-step reveal"><div class="step-num">03 描述变化</div><h3>方向与差异</h3><p>重心、标准差椭圆<br>区位商、Dagum基尼与分布动态</p></div>
+            <div class="process-step reveal"><div class="step-num">04 识别集聚</div><h3>连续与局部</h3><p>KDE、热点分析<br>Global/Local Moran’s I与DBSCAN</p></div>
+            <div class="process-step reveal"><div class="step-num">05 跟踪演化</div><h3>路径与转移</h3><p>LISA时间路径<br>时空跃迁与空间马尔可夫转移</p></div>
+          </div>
+          <div class="takeaway reveal">同时更换网格尺度、KDE带宽和权重矩阵，检验空间格局是否依赖单一参数。</div>
+        </div>
+      </section>
+
+      <!-- === P17 EXPERIMENT II === -->
+      <section class="slide content-slide" data-section="4" data-page="17" aria-label="驱动机制实验">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">改进实验Ⅱ：驱动机制的空间异质性</h2>
+          <p class="slide-subtitle reveal">模型选择服从因变量分布和诊断结果，局部模型不作为默认起点</p>
+          <div class="model-stack">
+            <div class="reveal">
+              <h3 style="font-size:29px;color:var(--deep-blue);margin:0 0 8px">模型序列</h3>
+              <div class="model-row"><strong>计数基线</strong><span>企业数量优先比较Poisson、负二项和零膨胀模型</span></div>
+              <div class="model-row"><strong>空间相关</strong><span>根据LM检验和残差Moran’s I比较空间杜宾、空间滞后与空间误差模型</span></div>
+              <div class="model-row"><strong>局部异质</strong><span>通过共线性和残差诊断后，使用MGWR或GTWR识别不同变量的作用尺度</span></div>
+              <div class="model-row"><strong>模型评价</strong><span>比较AICc、调整R²、残差空间自相关及空间交叉验证误差</span></div>
+            </div>
+            <div class="reveal">
+              <h3 style="font-size:29px;color:var(--deep-blue);margin:0 0 20px">解释变量体系</h3>
+              <table class="matrix-table" style="margin-top:0"><tbody>
+                <tr><td><b>市场与产业</b></td><td>经济水平、服务业结构、文化消费</td></tr>
+                <tr><td><b>人才与知识</b></td><td>高校、创意人才、科研与专利</td></tr>
+                <tr><td><b>文化资源</b></td><td>文旅资源、文化设施与内容生产基础</td></tr>
+                <tr><td><b>数字条件</b></td><td>宽带、5G、数据中心、平台活跃度</td></tr>
+                <tr><td><b>制度环境</b></td><td>财政支持、产业园区与试点政策</td></tr>
+              </tbody></table>
+              <div class="callout" style="margin-top:22px">县域/城市企业计数、企业密度与区位商可作为不同因变量进行交叉验证。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- === P18 EXPERIMENT III === -->
+      <section class="slide content-slide" data-section="4" data-page="18" aria-label="因果与稳健性实验">
+        <div class="slide-body">
+          <h2 class="slide-heading reveal">改进实验Ⅲ：因果验证、稳健性与实施路线</h2>
+          <div class="three-col" style="margin-top:34px">
+            <div class="academic-block reveal" style="min-height:330px"><h3>政策效应</h3><p>围绕数字文化政策、试点或园区设立构建DID或空间DID，检验平行趋势、安慰剂和邻近地区溢出。</p></div>
+            <div class="academic-block reveal" style="min-height:330px"><h3>空间稳健性</h3><p>比较Queen/Rook、kNN、距离衰减和经济距离权重矩阵，同时更换尺度、带宽与极端城市处理。</p></div>
+            <div class="academic-block reveal" style="min-height:330px"><h3>外部验证</h3><p>与经济普查、统计年鉴和文化科技企业名录进行城市级相关验证，并开展分层人工抽样核验。</p></div>
+          </div>
+          <div class="roadmap reveal">
+            <div class="roadmap-step"><b>01 版本冻结</b><p>统一样本量、筛选规则与专题图数据版本</p></div>
+            <div class="roadmap-step"><b>02 地址审计</b><p>核验开发区、异常城市和经营地址</p></div>
+            <div class="roadmap-step"><b>03 格局分析</b><p>完成多尺度分布、集聚和参数检验</p></div>
+            <div class="roadmap-step"><b>04 动态重建</b><p>补齐注销迁移数据，区分流量与存量</p></div>
+            <div class="roadmap-step"><b>05 机制识别</b><p>开展计数模型、空间异质和政策检验</p></div>
+          </div>
+          <div class="takeaway reveal">近期优先级：先建立可重复的数据版本，再扩展动态和机制模型。</div>
+        </div>
+      </section>
+
+      <!-- === P19 CLOSING === -->
+      <section class="slide end-slide" aria-label="结束页"></section>
+    </main>
+  </div>
+
+  <!-- === PRESENTATION CONTROLS === -->
+  <div class="deck-controls" aria-label="演示控制">
+    <button id="prevBtn" aria-label="上一页">‹</button>
+    <span class="deck-count" id="deckCount">1 / 19</span>
+    <button id="nextBtn" aria-label="下一页">›</button>
+    <button id="fullBtn" aria-label="全屏">全屏</button>
+  </div>
+
+  <!-- === INLINE EDITING CONTROLS === -->
+  <div class="edit-hotzone" aria-hidden="true"></div>
+  <button class="edit-toggle" id="editToggle" title="编辑模式（E）">✎</button>
+  <div class="edit-toolbar" id="editToolbar">
+    <button id="saveBtn">保存修改</button>
+    <button id="exportBtn">保存HTML副本</button>
+    <button id="resetBtn">恢复原稿</button>
+  </div>
+
+  <script>
+    /* === TEMPLATE HEADER BUILDER === */
+    const sectionNames = ["研究背景", "数据与方法", "阶段结果", "改进实验"];
+    document.querySelectorAll(".content-slide").forEach((slide) => {
+      const active = Number(slide.dataset.section || 1) - 1;
+      const header = document.createElement("header");
+      header.className = "template-header";
+      header.innerHTML = `
+        <div class="section-title">${active + 1}.${sectionNames[active]}</div>
+        <nav class="section-tabs" aria-label="章节导航">
+          ${sectionNames.map((name, i) => `<div class="section-tab ${i === active ? "active" : ""}">${name}</div>`).join("")}
+        </nav>`;
+      const page = document.createElement("div");
+      page.className = "page-num";
+      page.textContent = slide.dataset.page;
+      slide.prepend(header);
+      slide.append(page);
+    });
+
+    /* === SLIDE PRESENTATION CONTROLLER === */
+    class SlidePresentation {
+      constructor() {
+        this.slides = [...document.querySelectorAll(".slide")];
+        this.currentSlide = 0;
+        this.stage = document.getElementById("deckStage");
+        this.count = document.getElementById("deckCount");
+        this.wheelLocked = false;
+        this.touchStartX = 0;
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.setupButtons();
+        const requested = Number(location.hash.replace("#", "")) - 1;
+        this.showSlide(Number.isFinite(requested) && requested >= 0 ? requested : 0);
+      }
+
+      setupStageScale() {
+        const scale = () => {
+          const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+          const x = (window.innerWidth - 1920 * factor) / 2;
+          const y = (window.innerHeight - 1080 * factor) / 2;
+          this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+        };
+        scale();
+        window.addEventListener("resize", scale);
+      }
+
+      setupKeyboardNav() {
+        document.addEventListener("keydown", (event) => {
+          if (document.body.classList.contains("editing") && event.target.getAttribute("contenteditable") === "true") return;
+          if (["ArrowRight", "ArrowDown", " ", "PageDown"].includes(event.key)) { event.preventDefault(); this.next(); }
+          if (["ArrowLeft", "ArrowUp", "PageUp"].includes(event.key)) { event.preventDefault(); this.prev(); }
+          if (event.key === "Home") this.showSlide(0);
+          if (event.key === "End") this.showSlide(this.slides.length - 1);
+          if (event.key.toLowerCase() === "f") document.documentElement.requestFullscreen?.();
+        });
+      }
+
+      setupTouchNav() {
+        document.addEventListener("touchstart", (event) => { this.touchStartX = event.changedTouches[0].screenX; }, { passive: true });
+        document.addEventListener("touchend", (event) => {
+          const dx = event.changedTouches[0].screenX - this.touchStartX;
+          if (Math.abs(dx) > 55) dx < 0 ? this.next() : this.prev();
+        }, { passive: true });
+      }
+
+      setupWheelNav() {
+        document.addEventListener("wheel", (event) => {
+          if (this.wheelLocked || Math.abs(event.deltaY) < 16) return;
+          this.wheelLocked = true;
+          event.deltaY > 0 ? this.next() : this.prev();
+          setTimeout(() => { this.wheelLocked = false; }, 500);
+        }, { passive: true });
+      }
+
+      setupButtons() {
+        document.getElementById("prevBtn").addEventListener("click", () => this.prev());
+        document.getElementById("nextBtn").addEventListener("click", () => this.next());
+        document.getElementById("fullBtn").addEventListener("click", () => document.documentElement.requestFullscreen?.());
+      }
+
+      next() { this.showSlide(this.currentSlide + 1); }
+      prev() { this.showSlide(this.currentSlide - 1); }
+
+      showSlide(index) {
+        this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.slides.forEach((slide, i) => {
+          slide.classList.toggle("active", i === this.currentSlide);
+          slide.classList.toggle("visible", i === this.currentSlide);
+        });
+        this.count.textContent = `${this.currentSlide + 1} / ${this.slides.length}`;
+        history.replaceState(null, "", `#${this.currentSlide + 1}`);
+      }
+    }
+
+    /* === INLINE EDITOR WITH LOCAL SAVE === */
+    class InlineEditor {
+      constructor() {
+        this.isActive = false;
+        this.storageKey = "digital-culture-deck-content-v1";
+        this.bodies = [...document.querySelectorAll(".slide-body, .cover-band")];
+        this.restore();
+      }
+
+      toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle("editing", this.isActive);
+        document.getElementById("editToggle").classList.toggle("active", this.isActive);
+        document.getElementById("editToolbar").classList.toggle("active", this.isActive);
+        document.querySelectorAll(".slide-body h2, .slide-body h3, .slide-body p, .slide-body li, .slide-body td, .slide-body th, .slide-body span, .slide-body strong, .slide-body b, .cover-band h1, .cover-band p").forEach((el) => {
+          el.setAttribute("contenteditable", this.isActive ? "true" : "false");
+        });
+      }
+
+      save() {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.bodies.map((body) => body.innerHTML)));
+      }
+
+      restore() {
+        const raw = localStorage.getItem(this.storageKey);
+        if (!raw) return;
+        try {
+          const saved = JSON.parse(raw);
+          this.bodies.forEach((body, index) => { if (saved[index]) body.innerHTML = saved[index]; });
+        } catch (error) { console.warn("Saved edits could not be restored", error); }
+      }
+
+      reset() {
+        localStorage.removeItem(this.storageKey);
+        location.reload();
+      }
+
+      exportHtml() {
+        this.save();
+        const blob = new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: "text/html;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "中国数字文化产业研究进展_修改版.html";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      }
+    }
+
+    window.deck = new SlidePresentation();
+    const deck = window.deck;
+    const editor = new InlineEditor();
+    const hotzone = document.querySelector(".edit-hotzone");
+    const editToggle = document.getElementById("editToggle");
+    let hideTimeout = null;
+
+    editToggle.addEventListener("click", () => editor.toggleEditMode());
+    hotzone.addEventListener("click", () => editor.toggleEditMode());
+    hotzone.addEventListener("mouseenter", () => { clearTimeout(hideTimeout); editToggle.classList.add("show"); });
+    hotzone.addEventListener("mouseleave", () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove("show"); }, 400); });
+    editToggle.addEventListener("mouseenter", () => clearTimeout(hideTimeout));
+    editToggle.addEventListener("mouseleave", () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove("show"); }, 400); });
+    document.getElementById("saveBtn").addEventListener("click", () => editor.save());
+    document.getElementById("exportBtn").addEventListener("click", () => editor.exportHtml());
+    document.getElementById("resetBtn").addEventListener("click", () => editor.reset());
+    document.addEventListener("keydown", (event) => {
+      if ((event.key === "e" || event.key === "E") && event.target.getAttribute("contenteditable") !== "true") editor.toggleEditMode();
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") { event.preventDefault(); editor.save(); }
+    });
+  </script>
+</body>
+</html>
