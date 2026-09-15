@@ -506,9 +506,9 @@
             <thead><tr><th>研究主题</th><th>已有共识</th><th>常用方法</th><th>当前不足</th></tr></thead>
             <tbody>
               <tr><td>概念与边界</td><td>数字技术改变文化生产、传播和消费</td><td>政策文本、产业分类、关键词筛选</td><td>行业口径不统一，“数字性”识别不足</td></tr>
-              <tr><td>空间格局</td><td>东部和核心城市集中，区域差异明显</td><td>KDE、区位商、Moran’s I、热点分析</td><td>全国微观企业证据有限，尺度依赖突出</td></tr>
+              <tr><td>空间格局</td><td>东部和核心城市集中，区域差异明显</td><td>核密度、区位商、Moran’s I、热点分析</td><td>全国微观企业证据有限，尺度依赖突出</td></tr>
               <tr><td>动态演化</td><td>集聚具有路径依赖，多中心联系增强</td><td>重心迁移、LISA路径、空间马尔可夫</td><td>历史存量重建困难，时间节点较少</td></tr>
-              <tr><td>影响机制</td><td>经济、人才、创新和产业结构较重要</td><td>空间计量、地理探测器、GWR/MGWR</td><td>虚拟空间数据缺失，因果识别偏弱</td></tr>
+              <tr><td>影响机制</td><td>经济、人才、创新和产业结构较重要</td><td>空间计量、地理探测器、地理加权回归</td><td>虚拟空间数据缺失，因果识别偏弱</td></tr>
             </tbody>
           </table>
           <div class="takeaway reveal">研究机会：以全国企业点数据补充微观证据，并把尺度稳健性、历史状态和因果验证纳入同一研究设计。</div>
@@ -524,9 +524,9 @@
           <div class="process-line">
             <div class="process-step reveal"><div class="step-num">STAGE 01</div><h3>对象界定</h3><p>产业分类交叉筛选<br>经营范围辅助核验<br>建立可重复口径</p></div>
             <div class="process-step reveal"><div class="step-num">STAGE 02</div><h3>空间描述</h3><p>点位分布<br>重心与标准差椭圆<br>县域数量与区位商</p></div>
-            <div class="process-step reveal"><div class="step-num">STAGE 03</div><h3>集聚识别</h3><p>核密度与热点分析<br>Global/Local Moran’s I<br>DBSCAN多中心识别</p></div>
+            <div class="process-step reveal"><div class="step-num">STAGE 03</div><h3>集聚识别</h3><p>核密度与热点分析<br>Global/Local Moran’s I</p></div>
             <div class="process-step reveal"><div class="step-num">STAGE 04</div><h3>动态演化</h3><p>新设流量与在营存量<br>LISA时间路径<br>空间马尔可夫转移</p></div>
-            <div class="process-step reveal"><div class="step-num">STAGE 05</div><h3>机制检验</h3><p>计数型空间模型<br>MGWR/GTWR<br>政策效应与稳健性</p></div>
+            <div class="process-step reveal"><div class="step-num">STAGE 05</div><h3>机制检验</h3><p>计数型空间模型<br>地理加权回归<br>政策效应与稳健性</p></div>
           </div>
           <div class="three-col" style="margin-top:28px">
             <div class="callout reveal"><b>集聚理论</b><br>规模经济、知识溢出和共享劳动力市场解释城市集中。</div>
@@ -568,7 +568,7 @@
               <tr><td>地图不一致</td><td>县域图最高值2,619，当前表最高区县计数为<span class="risk">2,760</span></td><td>使用同一数据版本重制专题图，并核对区县名称归并</td></tr>
               <tr><td>时间口径</td><td>全部为当前存续企业，2026年只统计1—5月</td><td>区分新设流量与历史在营存量，补充注销和迁移信息</td></tr>
               <tr><td>地址偏差</td><td>部分高新区、开发区登记数量异常突出</td><td>核验注册地址与经营地址，设置开发区敏感性样本</td></tr>
-              <tr><td>坐标与距离</td><td>CGCS2000字段表现为经纬度数值，并非米制坐标</td><td>KDE、距离与面积计算前转换为适合全国分析的米制投影</td></tr>
+              <tr><td>坐标与距离</td><td>CGCS2000字段表现为经纬度数值，并非米制坐标</td><td>核密度、距离与面积计算前转换为适合全国分析的米制投影</td></tr>
             </tbody>
           </table>
           <div class="takeaway reveal">数据版本、空间位置与时间口径统一后，显著性检验和演化结论才具有可重复性。</div>
@@ -714,10 +714,10 @@
           <div class="paper-layout">
             <figure class="paper-preview reveal"><img src="assets/paper-page1.png" alt="刘培学等中国文化企业分布的时空特征及影响因素论文首页"></figure>
             <div class="reveal">
-              <div class="callout"><b>研究设计</b>：2006—2021年文化企业数据，选取2006、2013、2021三个节点，采用KNN（k=4）、LISA时间路径、时空跃迁和OLS/GWR。</div>
+              <div class="callout"><b>研究设计</b>：2006—2021年文化企业数据，选取2006、2013、2021三个节点，采用KNN（k=4）、LISA时间路径、时空跃迁、普通最小二乘法和地理加权回归。</div>
               <div class="paper-results">
                 <div class="academic-block"><h3>主要空间发现</h3><p>整体呈东南密、西北疏。高—高集聚主要位于京津冀、长三角和珠三角，部分省会表现为高—低类型。</p></div>
-                <div class="academic-block"><h3>动态与驱动</h3><p>空间稳定性St=0.895，路径依赖明显。经济、产业结构、高校、文旅资源和创新呈空间异质效应。</p></div>
+                <div class="academic-block"><h3>动态与驱动</h3><p>空间稳定性St=0.895，路径依赖明显。经济、产业结构、高校、文旅资源。</p></div>
                 <div class="academic-block"><h3>可继承内容</h3><p>企业微观数据验证、局部空间动态、权重矩阵设定和局部系数解释框架。</p></div>
                 <div class="academic-block" style="border-top-color:var(--risk)"><h3 class="risk">需要推进</h3><p>研究对象转向数字文化企业，并改进多尺度、计数型因变量、时间连续性和内生性处理。</p></div>
               </div>
@@ -735,8 +735,8 @@
           <div class="process-line" style="margin-top:30px">
             <div class="process-step reveal"><div class="step-num">01 时间重建</div><h3>流量与存量</h3><p>逐年新设企业作为流量<br>补充注销、迁移与状态记录后重建在营存量</p></div>
             <div class="process-step reveal"><div class="step-num">02 坐标统一</div><h3>米制投影</h3><p>保留原始经纬度<br>全国距离和面积分析采用适配CGCS2000的米制投影</p></div>
-            <div class="process-step reveal"><div class="step-num">03 描述变化</div><h3>方向与差异</h3><p>重心、标准差椭圆<br>区位商、Dagum基尼与分布动态</p></div>
-            <div class="process-step reveal"><div class="step-num">04 识别集聚</div><h3>连续与局部</h3><p>KDE、热点分析<br>Global/Local Moran’s I与DBSCAN</p></div>
+            <div class="process-step reveal"><div class="step-num">03 描述变化</div><h3>方向与差异</h3><p>重心、标准差椭圆<br>区位商与分布动态</p></div>
+            <div class="process-step reveal"><div class="step-num">04 识别集聚</div><h3>连续与局部</h3><p>核密度、热点分析<br>Global/Local Moran’s I</p></div>
             <div class="process-step reveal"><div class="step-num">05 跟踪演化</div><h3>路径与转移</h3><p>LISA时间路径<br>时空跃迁与空间马尔可夫转移</p></div>
           </div>
           <div class="takeaway reveal">同时更换网格尺度、KDE带宽和权重矩阵，检验空间格局是否依赖单一参数。</div>
